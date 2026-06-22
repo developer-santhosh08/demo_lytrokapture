@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-gold: #F59E0B;
+    --color-gold-light: #FCD34D;
+    --color-dark: #0F172A;
+    --color-darker: #111827;
+    --color-card: #1E293B;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-luxury-dark text-white font-sans antialiased;
+    background-color: #0F172A;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0F172A;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #F59E0B;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #FCD34D;
+  }
+
+  ::selection {
+    background: rgba(245, 158, 11, 0.3);
+    color: #FCD34D;
+  }
+}
+
+@layer components {
+  /* Typography */
+  .heading-display {
+    @apply font-display font-bold tracking-tight;
+  }
+
+  /* Gold gradient text */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #F59E0B 0%, #FCD34D 50%, #D97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Section heading underline */
+  .section-label {
+    @apply text-luxury-gold text-xs font-semibold tracking-[0.3em] uppercase;
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+  }
+
+  /* Gold button (Glass-based) */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 font-semibold text-sm px-7 py-3.5 rounded-full transition-all duration-300;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #FCD34D;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+  }
+  .btn-gold:hover {
+    background: rgba(245, 158, 11, 0.9);
+    color: #0F172A;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.35);
+    transform: translateY(-2px);
+  }
+
+  /* Outline button (Glass-based) */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 font-semibold text-sm px-7 py-3.5 rounded-full transition-all duration-300;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: white;
+  }
+  .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-2px);
+  }
+
+  /* Section padding */
+  .section-padding {
+    @apply py-20 md:py-28 lg:py-32;
+  }
+
+  /* Image overlay */
+  .img-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-luxury-dark via-luxury-dark/40 to-transparent;
+  }
+}
+
+@layer utilities {
+  /* Shimmer animation for loading/hover */
+  .animate-shimmer-gold {
+    background: linear-gradient(90deg, transparent, rgba(245,158,11,0.15), transparent);
+    background-size: 200% 100%;
+    animation: shimmerGold 2s infinite;
+  }
+
+  @keyframes shimmerGold {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* Noise texture overlay */
+  .noise-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Horizontal divider with gold accent */
+  .divider-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #F59E0B, transparent);
+  }
+
+  /* Text shadow for hero */
+  .text-shadow-lg {
+    text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  }
+}
+
+/* Lightbox styles */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Masonry grid */
+.masonry-grid {
+  columns: 1;
+  column-gap: 1rem;
+}
+@media (min-width: 640px) {
+  .masonry-grid { columns: 2; }
+}
+@media (min-width: 1024px) {
+  .masonry-grid { columns: 3; }
+}
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+/* Custom checkbox/radio */
+.custom-input {
+  @apply w-full bg-luxury-card border border-luxury-border text-white placeholder-luxury-muted px-4 py-3.5 rounded-xl focus:outline-none focus:border-luxury-gold transition-colors duration-200;
+}
+.custom-input:focus {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+/* Gradient border card */
+.gradient-border {
+  position: relative;
+  background: #1E293B;
+  border-radius: 1rem;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(1rem + 1px);
+  background: linear-gradient(135deg, #F59E0B, transparent 50%, #F59E0B);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: -1;
+}
+.gradient-border:hover::before {
+  opacity: 1;
+}
