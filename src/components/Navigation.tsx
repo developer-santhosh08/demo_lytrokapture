@@ -52,21 +52,21 @@ export default function Navigation() {
         transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? 'py-3 bg-luxury-dark/90 backdrop-blur-xl border-b border-luxury-border/40 shadow-2xl'
+            ? 'py-3 bg-luxury-dark/90 backdrop-blur-xl shadow-2xl'
             : 'py-5 bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo */}
           <button onClick={() => scrollTo('#home')} className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 flex items-center justify-center rounded-full bg-luxury-gold/10 border border-luxury-gold/30 group-hover:bg-luxury-gold/20 transition-all duration-300 overflow-hidden">
+            <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-luxury-gold/10 border border-luxury-gold/30 group-hover:bg-luxury-gold/20 transition-all duration-300 overflow-hidden shadow-sm">
               <img src="/images/lk-logo.jpg" alt="LK Logo" className="w-full h-full object-cover" />
             </div>
-            <div className="leading-none">
-              <span className="font-display font-bold text-white text-lg tracking-wide">
+            <div className="leading-none text-left">
+              <span className={`font-display font-bold text-xl tracking-wide transition-colors duration-300 ${scrolled ? 'text-white' : 'text-[#0F172A]'}`}>
                 LYTRO <span className="text-luxury-gold">KAPTURE</span>
               </span>
-              <p className="text-luxury-muted text-[9px] tracking-[0.2em] uppercase font-medium">Fotography Studio</p>
+              <p className={`text-[10px] tracking-[0.2em] uppercase font-bold transition-colors duration-300 ${scrolled ? 'text-luxury-muted' : 'text-[#0F172A]/70'}`}>Fotography Studio</p>
             </div>
           </button>
 
@@ -76,10 +76,12 @@ export default function Navigation() {
               <button
                 key={link.href}
                 onClick={() => scrollTo(link.href)}
-                className={`relative text-sm font-medium tracking-wide transition-colors duration-200 group ${
+                className={`relative text-sm font-bold tracking-wide transition-colors duration-200 group ${
                   activeSection === link.href.slice(1)
                     ? 'text-luxury-gold'
-                    : 'text-luxury-subtle hover:text-white'
+                    : scrolled
+                      ? 'text-luxury-subtle hover:text-white font-medium'
+                      : 'text-[#0F172A]/80 hover:text-luxury-gold'
                 }`}
               >
                 {link.label}
@@ -96,7 +98,9 @@ export default function Navigation() {
           <div className="hidden lg:block">
             <button
               onClick={() => scrollTo('#contact')}
-              className="btn-gold text-sm py-3 px-6"
+              className={`transition-all duration-300 ${
+                scrolled ? 'btn-gold' : 'btn-gold-dark'
+              }`}
             >
               Book a Session
             </button>

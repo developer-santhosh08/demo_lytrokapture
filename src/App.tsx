@@ -8,12 +8,13 @@ import Portfolio from './components/Portfolio';
 import CatalogList from './components/CatalogList';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import BackToTop from './components/BackToTop';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Preload hero images while loader plays
+    // Preload hero images
     const urls = [
       '/images/hero-1.png',
       '/images/hero-2.png',
@@ -32,20 +33,19 @@ export default function App() {
       <AnimatePresence>
         {loading && <Loader onComplete={() => setLoading(false)} />}
       </AnimatePresence>
-
-      {!loading && (
-        <div className="min-h-screen bg-luxury-dark text-white overflow-x-hidden">
-          <Navigation />
-          <main>
-            <Hero />
-            <Portfolio />
-            <About />
-            <CatalogList />
-            <Contact />
-          </main>
-          <Footer />
-        </div>
-      )}
+      
+      <div className="min-h-screen bg-luxury-dark text-white overflow-x-hidden">
+        <Navigation />
+        <main>
+          <Hero />
+          <Portfolio />
+          <About />
+          <CatalogList />
+          <Contact />
+        </main>
+        <Footer />
+        <BackToTop />
+      </div>
     </>
   );
 }
