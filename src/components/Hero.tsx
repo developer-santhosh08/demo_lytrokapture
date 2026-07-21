@@ -4,8 +4,8 @@ import { ArrowRight, Aperture, MapPin, Instagram } from 'lucide-react';
 
 const SLIDES = [
   { src: '/images/herobanner/002.jpg', label: '', align: '50% 0%' },
-  { src: '/images/herobanner/006.jpg', label: '', align: '50% 70%' },
   { src: '/images/herobanner/24.JPG', label: '', align: '50% 0%' },
+  { src: '/images/herobanner/006.jpg', label: '', align: '50% 70%' },
 ];
 
 export default function Hero() {
