@@ -14,7 +14,7 @@ export default function Hero() {
   const backgroundY = useTransform(scrollY, [0, 1200], ['0%', '25%']);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setInterval>;
 
     const startTimer = () => {
       timer = setInterval(() => {
