@@ -1,18 +1,25 @@
-  import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
 
 export default function BackToTop() {
   const [isVisible, setIsVisible] = useState(false);
-
   useEffect(() => {
     const handleScroll = () => {
-      // Show button when page is scrolled down 300px
-      if (window.scrollY > 300) {
-        setIsVisible(true);
+      const aboutSection = document.getElementById('about');
+      if (aboutSection) {
+        const rect = aboutSection.getBoundingClientRect();
+        // Show the button when the top of the About section comes into the viewport
+        if (rect.top <= window.innerHeight * 0.5) {
+          setIsVisible(true);
+        } else {
+          setIsVisible(false);
+        }
       } else {
-        setIsVisible(false);
+        setIsVisible(window.scrollY > 800);
       }
     };
+
+    handleScroll(); // Force check immediately on mount
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);

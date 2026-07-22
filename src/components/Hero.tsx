@@ -2,23 +2,40 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Aperture, MapPin, Instagram } from 'lucide-react';
 
-const SLIDES = [
+const DESKTOP_SLIDES = [
   { src: '/images/herobanner/002.jpg', label: '', align: '50% 0%' },
   { src: '/images/herobanner/24.JPG', label: '', align: '50% 0%' },
+  // { src: '/images/herobanner/006.jpg', label: '', align: '50% 70%' }, // Commented for desktop
+];
+
+const MOBILE_SLIDES = [
   { src: '/images/herobanner/006.jpg', label: '', align: '50% 70%' },
+  { src: '/images/herobanner/07.JPG', label: '', align: '50% 0%' },
+  { src: '/images/herobanner/007.jpg', label: '', align: '50% 0%' },
 ];
 
 export default function Hero() {
   const [current, setCurrent] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 1200], ['0%', '25%']);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const SLIDES = isMobile ? MOBILE_SLIDES : DESKTOP_SLIDES;
+  const safeCurrent = current % SLIDES.length;
 
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
 
     const startTimer = () => {
       timer = setInterval(() => {
-        setCurrent((prev) => (prev + 1) % SLIDES.length);
+        setCurrent((prev) => prev + 1);
       }, 8000);
     };
 
@@ -42,7 +59,7 @@ export default function Hero() {
     };
   }, []);
 
-  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  const scrollTo = (id: string) => (window as any).scrollToSection?.(id);
 
   return (
     <section
@@ -57,7 +74,7 @@ export default function Hero() {
       >
         <AnimatePresence mode="sync">
           <motion.div
-            key={current}
+            key={safeCurrent}
             initial={{ opacity: 0, scale: 1.06 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
@@ -66,10 +83,10 @@ export default function Hero() {
             style={{ willChange: 'opacity, transform', WebkitBackfaceVisibility: 'hidden' }}
           >
             <img
-              src={SLIDES[current].src}
-              alt={SLIDES[current].label}
+              src={SLIDES[safeCurrent].src}
+              alt={SLIDES[safeCurrent].label}
               className="w-full h-full object-cover"
-              style={{ display: 'block', objectPosition: SLIDES[current].align }}
+              style={{ display: 'block', objectPosition: SLIDES[safeCurrent].align }}
             />
           </motion.div>
         </AnimatePresence>
@@ -85,9 +102,9 @@ export default function Hero() {
             className="rounded-full transition-all duration-500"
             style={{
               width: '5px',
-              height: i === current ? '36px' : '8px',
-              background: i === current ? '#F59E0B' : 'rgba(255,255,255,0.22)',
-              boxShadow: i === current ? '0 0 8px rgba(245,158,11,0.5)' : 'none',
+              height: i === safeCurrent ? '36px' : '8px',
+              background: i === safeCurrent ? '#F59E0B' : 'rgba(255,255,255,0.22)',
+              boxShadow: i === safeCurrent ? '0 0 8px rgba(245,158,11,0.5)' : 'none',
             }}
           />
         ))}

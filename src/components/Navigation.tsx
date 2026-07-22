@@ -4,8 +4,8 @@ import { Menu, X, Camera } from 'lucide-react';
 
 const navLinks = [
   { label: 'Home', href: '#home' },
-  { label: 'Portfolio', href: '#portfolio' },
   { label: 'About', href: '#about' },
+  { label: 'Portfolio', href: '#portfolio' },
   { label: 'Catalog', href: '#catalog' },
   { label: 'Contact', href: '#contact' },
 ];
