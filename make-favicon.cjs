@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 try {
-  const imgPath = path.join(__dirname, 'public', 'images', 'lk-logo.jpg');
+  const imgPath = path.join(__dirname, 'public', 'images', 'lk-logo.jpeg');
   const imgData = fs.readFileSync(imgPath).toString('base64');
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">

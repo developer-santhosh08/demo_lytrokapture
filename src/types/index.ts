@@ -9,7 +9,7 @@ export interface Service {
 
 export interface PortfolioItem {
   id: string;
-  category: 'wedding' | 'pre-wedding' | 'portrait' | 'events' | 'commercial' | 'drone' | 'traditional' | 'lifestyle';
+  category: 'wedding' | 'pre-wedding' | 'portrait' | 'events' | 'commercial' | 'drone' | 'traditional' | 'lifestyle' | 'baby';
   title: string;
   location: string;
   imageUrl: string;

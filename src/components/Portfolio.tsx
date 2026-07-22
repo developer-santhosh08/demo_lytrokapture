@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn, MapPin, Instagram, Expand } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { portfolioItems } from '../data';
 import type { PortfolioItem } from '../types';
 
@@ -10,8 +11,8 @@ const categories: { value: Category; label: string }[] = [
   { value: 'all', label: 'All Work' },
   { value: 'pre-wedding', label: 'Pre-Wedding' },
   { value: 'wedding', label: 'Wedding' },
-  { value: 'portrait', label: 'Portrait' },
-  { value: 'traditional', label: 'Traditional' },
+  { value: 'portrait', label: 'Maternity' },
+  { value: 'baby', label: 'Baby Shoot' },
   { value: 'lifestyle', label: 'Lifestyle' },
 ];
 
@@ -20,21 +21,27 @@ const HERO_IMG = portfolioItems[0]; // p0 — hero-1.png
 const REST = portfolioItems.slice(1);
 
 // ── Parallax image wrapper (scroll-driven, works on mobile) ──────────────
-function ParallaxImage({ src, alt, strength = 14 }: { src: string; alt: string; strength?: number }) {
+function ParallaxImage({ src, alt, strength = 14, objectFit = "cover", zoomOut = false, autoHeight = false }: { src: string; alt: string; strength?: number; objectFit?: "cover" | "contain"; zoomOut?: boolean; autoHeight?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start end', 'end start'],
   });
   const y = useTransform(scrollYProgress, [0, 1], [`-${strength}%`, `${strength}%`]);
+  
+  // Dynamically calculate the minimum scale required to prevent the edges from showing during parallax
+  const dynamicScale = 1 + (strength * 2.2) / 100;
+  
+  // If zoomOut is true, scale down as user scrolls past it. Otherwise, use a static scale to support the y-axis parallax.
+  const scale = useTransform(scrollYProgress, [0, 1], zoomOut ? [1.1, 0.95] : [dynamicScale, dynamicScale]);
 
   return (
-    <div ref={ref} className="w-full h-full overflow-hidden">
+    <div ref={ref} className={`w-full ${autoHeight ? 'h-auto' : 'h-full'} overflow-hidden bg-[#0A101C]`}>
       <motion.img
         src={src}
         alt={alt}
-        style={{ y, scale: 1.3 }}
-        className="w-full h-full object-cover will-change-transform"
+        style={{ y: zoomOut ? 0 : y, scale }}
+        className={`w-full ${autoHeight ? 'h-auto' : 'h-full'} object-${objectFit} will-change-transform`}
         loading="lazy"
         referrerPolicy="no-referrer"
       />
@@ -46,13 +53,38 @@ export default function Portfolio() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
 
+  // Hero Image Sticky Zoom Effect
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ['start 112px', 'end start'] // 112px is roughly top-28
+  });
+  const heroScale = useTransform(heroScroll, [0, 1], [1, 0.85]);
+  const heroOpacity = useTransform(heroScroll, [0.5, 1], [1, 0]);
+
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Filter only REST (grid), not the hero
+  // On mobile 'all', show exactly 3 images: 1 baby, 1 wedding, 1 maternity (portrait).
+  // On desktop 'all', take 1 image from EACH category to create a curated mix.
   const filtered = activeCategory === 'all'
-    ? REST
-    : REST.filter(item => item.category === activeCategory);
+    ? (isMobile 
+        ? [
+            REST.find(item => item.category === 'baby'),
+            REST.find(item => item.category === 'wedding'),
+            REST.find(item => item.category === 'portrait')
+          ].filter(Boolean) as PortfolioItem[]
+        : categories.filter(c => c.value !== 'all' && c.value !== 'lifestyle').flatMap(c => REST.filter(item => item.category === c.value).slice(0, 1)))
+    : REST.filter(item => item.category === activeCategory).slice(0, 3);
 
   // Lightbox operates on filtered array
   const openLightbox = (i: number) => {
@@ -67,8 +99,8 @@ export default function Portfolio() {
   const next = () => setLightboxIndex(p => p === null ? null : (p + 1) % filtered.length);
 
   return (
-    <section id="portfolio" className="section-padding bg-luxury-darker relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="portfolio" className="pt-8 pb-8 md:pt-32 md:pb-8 bg-[#0F172A] relative z-20">
+      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
 
         {/* ── Section Header ── */}
         <motion.div
@@ -91,28 +123,29 @@ export default function Portfolio() {
             COMMANDING HERO IMAGE — hero-1.png full width
         ══════════════════════════════════════════════ */}
         <motion.div
+          ref={heroRef}
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 0.15 }}
-          className="relative group cursor-pointer rounded-3xl overflow-hidden mb-8 shadow-2xl"
-          style={{ height: 'clamp(340px, 55vw, 620px)' }}
+          style={{ scale: heroScale, opacity: heroOpacity }}
+          className="sticky top-28 z-0 relative group cursor-pointer rounded-3xl overflow-hidden shadow-2xl w-full aspect-[4/3] md:aspect-video lg:aspect-[16/9]"
           onClick={() => {
             // open hero image in lightbox as a standalone overlay
             setLightboxIndex(-1);
             document.body.style.overflow = 'hidden';
           }}
         >
-          <ParallaxImage src={HERO_IMG.imageUrl} alt={HERO_IMG.title} strength={10} />
+          <ParallaxImage src={HERO_IMG.imageUrl} alt={HERO_IMG.title} strength={6} objectFit="contain" zoomOut={true} />
 
           {/* Bottom gradient */}
-          <div className="absolute inset-0"
+          <div className="absolute inset-0 hidden md:block"
             style={{ background: 'linear-gradient(to top, rgba(7,11,20,0.92) 0%, rgba(7,11,20,0.35) 40%, transparent 70%)' }} />
 
           {/* Gold border shimmer on hover */}
           <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-[rgba(245,158,11,0.5)] transition-all duration-500" />
 
           {/* FEATURED badge */}
-          <div className="absolute top-5 left-5 flex items-center gap-2">
+          <div className="absolute top-5 left-5 hidden md:flex items-center gap-2">
             <span className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.25em]"
               style={{ background: '#F59E0B', color: '#0F172A' }}>
               Featured
@@ -130,7 +163,7 @@ export default function Portfolio() {
           </div>
 
           {/* Title + location */}
-          <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8">
+          <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8 hidden md:block">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <h3 className="font-display font-bold text-white text-2xl sm:text-3xl md:text-4xl leading-tight mb-2 drop-shadow-lg">
@@ -150,18 +183,15 @@ export default function Portfolio() {
           </div>
         </motion.div>
 
-        {/* ── Category Filters ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.25, duration: 0.7 }}
-          className="flex flex-wrap gap-2 justify-center mb-10"
-        >
+        {/* ── Solid Background Wrapper for Grid to Slide Over Hero ── */}
+        <div className="relative z-10 bg-[#0F172A] w-full pt-6 mt-4 sm:pt-16 sm:mt-16">
+          {/* ── Category Filters ── */}
+          <div className="flex flex-nowrap overflow-x-auto gap-2 pb-3 mb-10 no-scrollbar md:flex-wrap md:justify-center px-1">
           {categories.map(cat => (
             <button
               key={cat.value}
               onClick={() => setActiveCategory(cat.value)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeCategory === cat.value
                   ? 'bg-luxury-gold text-luxury-dark shadow-lg shadow-luxury-gold/30'
                   : 'glass-card text-luxury-muted hover:text-white border border-luxury-border hover:border-luxury-gold/40'
@@ -170,9 +200,9 @@ export default function Portfolio() {
               {cat.label}
             </button>
           ))}
-        </motion.div>
+          </div>
 
-        {/* ── Masonry Grid ── */}
+          {/* ── Masonry Grid ── */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeCategory}
@@ -191,11 +221,10 @@ export default function Portfolio() {
                 className="masonry-item"
               >
                 <div
-                  className="relative group cursor-pointer overflow-hidden rounded-xl"
-                  style={{ aspectRatio: i % 3 === 0 ? '3/4' : i % 3 === 1 ? '4/5' : '4/3' }}
+                  className="relative group cursor-pointer overflow-hidden rounded-xl h-full"
                   onClick={() => openLightbox(i)}
                 >
-                  <ParallaxImage src={item.imageUrl} alt={item.title} strength={12} />
+                  <ParallaxImage src={item.imageUrl} alt={item.title} strength={4} autoHeight={true} />
                   <div className="absolute inset-0 bg-gradient-to-t from-luxury-dark via-luxury-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-400" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-400">
                     <p className="text-luxury-gold text-[10px] font-bold uppercase tracking-widest mb-1">{item.category}</p>
@@ -217,24 +246,33 @@ export default function Portfolio() {
             ))}
           </motion.div>
         </AnimatePresence>
+        </div>
 
         {/* Instagram CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.8 }}
-          className="text-center mt-14"
+          className="text-center mt-8 md:mt-14"
         >
-          <p className="text-luxury-muted mb-5">See more of our work on Instagram</p>
-          <a
-            href="https://www.instagram.com/lytrokapture_fotography"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity duration-200 shadow-lg"
-          >
-            <Instagram size={18} />
-            @lytrokapture_fotography
-          </a>
+          <p className="text-luxury-muted mb-5">Explore more of our stunning visuals</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/gallery"
+              className="btn-gold"
+            >
+              View Full Gallery
+            </Link>
+            <a
+              href="https://www.instagram.com/lytrokapture_fotography"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-semibold px-8 py-4 rounded-full hover:opacity-90 transition-opacity duration-200 shadow-lg"
+            >
+              <Instagram size={18} />
+              @lytrokapture_fotography
+            </a>
+          </div>
         </motion.div>
       </div>
 
@@ -258,7 +296,7 @@ export default function Portfolio() {
             >
               <button
                 onClick={closeLightbox}
-                className="absolute -top-12 right-0 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                className="absolute top-3 right-3 md:-top-12 md:right-0 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-colors z-50 bg-black/40 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none"
               >
                 <X size={18} />
               </button>
@@ -275,7 +313,7 @@ export default function Portfolio() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="w-full max-h-[80vh] object-contain"
+                      className="w-full max-h-[60vh] md:max-h-[80vh] object-contain"
                     />
                   ) : (
                     <motion.img
@@ -286,7 +324,7 @@ export default function Portfolio() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.3 }}
-                      className="w-full max-h-[78vh] object-contain"
+                      className="w-full max-h-[60vh] md:max-h-[78vh] object-contain"
                       referrerPolicy="no-referrer"
                     />
                   )}

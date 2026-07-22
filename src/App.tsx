@@ -13,11 +13,37 @@ import CatalogList from './components/CatalogList';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import BackToTop from './components/BackToTop';
+import FullGallery from './components/FullGallery';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Home component containing the landing page sections
+function Home() {
+  return (
+    <>
+      <Navigation />
+      <main>
+        <Hero />
+        <About />
+        <Portfolio />
+        <CatalogList />
+        <Contact />
+      </main>
+      <Footer />
+      <BackToTop />
+    </>
+  );
+}
+
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   // Initialize Lenis Smooth Scroll
   useEffect(() => {
@@ -27,15 +53,16 @@ export default function App() {
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 2,
+      syncTouch: true, // Syncs touch scroll with GSAP properly
     });
 
     // Expose lenis globally for click-to-scroll features
     (window as any).lenis = lenis;
-    (window as any).scrollToSection = (target: string | number) => {
+    (window as any).scrollToSection = (target: string | number, options?: any) => {
       if (typeof target === 'string') {
-        lenis.scrollTo(target.startsWith('#') ? target : `#${target}`);
+        lenis.scrollTo(target.startsWith('#') ? target : `#${target}`, options);
       } else {
-        lenis.scrollTo(target);
+        lenis.scrollTo(target, options);
       }
     };
 
@@ -80,16 +107,10 @@ export default function App() {
       </AnimatePresence>
       
       <div className="min-h-screen bg-luxury-dark text-white overflow-x-hidden">
-        <Navigation />
-        <main>
-          <Hero />
-          <About />
-          <Portfolio />
-          <CatalogList />
-          <Contact />
-        </main>
-        <Footer />
-        <BackToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/gallery" element={<FullGallery />} />
+        </Routes>
       </div>
     </>
   );

@@ -11,7 +11,7 @@ export default function CatalogList() {
   const selectedItem = catalogItems.find(c => c.id === selected);
 
   return (
-    <section id="catalog" className="section-padding bg-luxury-dark relative overflow-hidden">
+    <section id="catalog" className="pt-8 md:pt-10 pb-20 md:pb-32 bg-luxury-dark relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 60%, rgba(245,158,11,0.04) 0%, transparent 70%)' }} />

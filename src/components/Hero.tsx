@@ -9,9 +9,9 @@ const DESKTOP_SLIDES = [
 ];
 
 const MOBILE_SLIDES = [
-  { src: '/images/herobanner/006.jpg', label: '', align: '50% 70%' },
   { src: '/images/herobanner/07.JPG', label: '', align: '50% 0%' },
   { src: '/images/herobanner/007.jpg', label: '', align: '50% 0%' },
+  { src: '/images/herobanner/006.jpg', label: '', align: '50% 70%' },
 ];
 
 export default function Hero() {
@@ -145,7 +145,7 @@ export default function Hero() {
 
         {/* Scroll cue */}
         <motion.button
-          onClick={() => scrollTo('portfolio')}
+          onClick={() => scrollTo('about')}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
           className="flex flex-col items-center gap-1 text-[#0F172A]/70 hover:text-[#F59E0B] transition-colors duration-300"

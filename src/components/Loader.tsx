@@ -9,12 +9,23 @@ export default function Loader({ onComplete }: LoaderProps) {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Keep loader active for 2.5 seconds to let the bouncing animation loop nicely
-    const t = setTimeout(() => {
+    // 1. Enforce a minimum 2-second display time for the loader animation
+    const minWait = new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // 2. Actually wait for all images, videos, and assets to finish downloading
+    const assetsLoaded = new Promise(resolve => {
+      if (document.readyState === 'complete') {
+        resolve(true);
+      } else {
+        window.addEventListener('load', () => resolve(true));
+      }
+    });
+
+    // Only finish when BOTH conditions are met
+    Promise.all([minWait, assetsLoaded]).then(() => {
       setDone(true);
-      setTimeout(onComplete, 600); // Wait for exit animation
-    }, 2500);
-    return () => clearTimeout(t);
+      setTimeout(onComplete, 600); // Wait for the exit fade animation
+    });
   }, [onComplete]);
 
   return (

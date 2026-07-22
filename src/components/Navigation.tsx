@@ -29,7 +29,7 @@ export default function Navigation() {
           if (e.isIntersecting) setActiveSection(e.target.id);
         });
       },
-      { rootMargin: '-40% 0px -40% 0px' }
+      { rootMargin: '-20% 0px -20% 0px' }
     );
     sections.forEach(id => {
       const el = document.getElementById(id);
@@ -60,7 +60,7 @@ export default function Navigation() {
           {/* Logo */}
           <button onClick={() => scrollTo('#home')} className="flex items-center gap-3 group">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full bg-luxury-gold/10 border border-luxury-gold/30 group-hover:bg-luxury-gold/20 transition-all duration-300 overflow-hidden shadow-sm">
-              <img src="/images/lk-logo.jpg" alt="LK Logo" className="w-full h-full object-cover" />
+              <img src="/images/lk-logo.jpeg" alt="LK Logo" className="w-full h-full object-cover" />
             </div>
             <div className="leading-none text-left">
               <span className={`font-display font-bold text-xl tracking-wide transition-colors duration-300 ${scrolled ? 'text-white' : 'text-[#0F172A]'}`}>
